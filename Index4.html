@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal do Aluno - Dados Pessoais</title>
+<link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vinho:#9B0B2A;
+  --vinho-esc:#7d0822;
+  --teal:#2b8aa0;
+  --teal-claro:#4fb0c6;
+  --texto:#5a5a5a;
+  --cinza-bg:#ededed;
+  --borda:#d9d9d9;
+  --sidebar-w:95px;
+  --header-h:54px;
+  --sub-h:88px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Nunito',Arial,sans-serif;color:var(--texto);background:#fff;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer}
+svg{display:block}
+
+/* ============ HEADER ============ */
+.header{height:var(--header-h);background:#f4f7f8;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:30}
+.header .filial{color:var(--teal);font-size:22px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto;max-width:30%}
+.header .itens{margin-left:auto;display:flex;align-items:center;gap:34px;min-width:0}
+.header .item{font-size:14px;font-weight:600;color:#4a4a4a;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.header .usuario{display:flex;align-items:center;gap:8px;min-width:0;position:relative}
+.header .usuario .nome{font-size:14px;font-weight:600;color:#4a4a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.avatar-sm{width:44px;height:44px;border-radius:50%;background:#cfd8dc;flex-shrink:0;overflow:hidden}
+.chev{color:var(--teal-claro)}
+.dropdown{display:none;position:absolute;right:0;top:48px;background:#fff;border:1px solid var(--borda);border-radius:4px;box-shadow:0 6px 14px rgba(0,0,0,.12);min-width:200px;padding:6px 0;z-index:50}
+.dropdown.aberto{display:block}
+.dropdown a{display:block;padding:8px 16px;font-size:14px;color:#333;text-decoration:none}
+.dropdown a:hover{background:#f2f2f2}
+.dropdown hr{border:0;border-top:1px solid #e5e5e5;margin:6px 0}
+
+/* ============ SUBHEADER ============ */
+.subheader{height:var(--sub-h);background:var(--vinho);display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:inset 0 0 0 2px var(--vinho)}
+.logo span{color:var(--vinho);font-weight:700;font-size:17px;font-family:Georgia,serif}
+.hotlinks{display:flex;align-items:center;gap:26px;color:#fff}
+.hotlinks .hl{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;cursor:pointer}
+.hotlinks .sep{width:1px;height:40px;background:rgba(255,255,255,.4)}
+
+/* ============ LAYOUT ============ */
+.layout{display:flex;min-height:calc(100vh - var(--header-h) - var(--sub-h))}
+.sidebar{width:var(--sidebar-w);background:var(--vinho);flex-shrink:0}
+.sidebar ul{list-style:none}
+.sidebar li{height:71px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;border-bottom:1px solid #6e9fb0;cursor:pointer;position:relative}
+.sidebar li:hover,.sidebar li.ativo{background:var(--vinho-esc)}
+.sidebar li .seta{position:absolute;right:16px}
+.sidebar li.tem-sub svg:first-child{margin-left:-14px}
+
+.conteudo{flex:1;min-width:0;padding:40px 35px 60px 35px}
+.pagina{max-width:1200px}
+
+/* título */
+.titulo-linha{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:0 40px 18px 40px;flex-wrap:wrap}
+.titulo-linha h2{font-size:27px;font-weight:400;color:#5a5a5a;text-transform:uppercase;line-height:1.2;flex:1 1 300px}
+.badge{background:#e6e6e6;color:var(--teal);font-weight:700;font-size:18px;padding:14px 30px;border-radius:30px;white-space:nowrap}
+
+/* card aluno */
+.card-aluno{background:var(--cinza-bg);display:flex;gap:40px;padding:38px 38px 40px;max-width:100%}
+.foto{background:#fff;border:1px solid var(--borda);border-radius:4px;padding:6px;width:322px;flex-shrink:0;align-self:flex-start}
+.foto .ph{width:100%;aspect-ratio:307/430;background:linear-gradient(180deg,#dfe5e8 0%,#c9d1d5 100%);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.dados-aluno{display:flex;flex-direction:column;gap:18px;padding-top:6px;min-width:0}
+.campo .lbl{color:var(--teal);font-size:18px;margin-bottom:2px}
+.campo .val{font-size:18px;color:#5a5a5a;word-break:break-word}
+
+/* foto do aluno */
+.foto-aluno-sm,.foto-aluno-lg{position:relative;background-size:cover;background-position:center top;background-repeat:no-repeat}
+.foto .ph.foto-aluno-lg{display:block;background-color:#dfe5e8}
+.img-aluno{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;border:0}
+/* abas */
+.abas{display:flex;border-bottom:1px solid var(--borda);margin-top:50px;overflow-x:auto;scrollbar-width:thin}
+.aba{background:none;border:0;border-bottom:3px solid transparent;padding:12px 30px;font-size:17px;font-weight:700;color:#9aa5a8;white-space:nowrap}
+.aba.ativa{color:var(--teal-claro);border-bottom-color:var(--teal-claro)}
+.painel{display:none;padding-top:25px}
+.painel.ativo{display:block}
+
+/* seções */
+.secao h4{font-size:18px;font-weight:600;color:#5a5a5a;margin:25px 0 8px}
+.secao hr{border:0;border-top:1px solid #e1e1e1;margin-bottom:16px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 30px}
+.info-grid label{font-weight:700;margin-right:6px}
+.alerta{background:#d9edf7;border:1px solid #bce8f1;color:#31708f;padding:13px 15px;border-radius:4px;font-size:14px;display:flex;gap:8px;align-items:center}
+
+/* formulário */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 30px}
+.form-grid .span2{grid-column:span 2}
+.form-grid .span3{grid-column:1/-1}
+.fld label{display:block;font-size:14px;font-weight:600;color:#5a5a5a;margin-bottom:5px}
+.input-wrap{display:flex}
+.input-wrap input,.input-wrap select,.input-wrap textarea{flex:1;min-width:0;height:36px;border:1px solid #ccc;border-right:0;border-radius:4px 0 0 4px;padding:6px 12px;font-size:14px;font-family:inherit;color:#555;background:#fff}
+.input-wrap textarea{height:90px;border-right:1px solid #ccc;border-radius:4px;resize:vertical}
+.input-wrap input:disabled,.input-wrap select:disabled{background:#eee}
+.input-wrap .x{width:38px;border:1px solid #ccc;border-radius:0 4px 4px 0;background:#fff;color:#333;display:flex;align-items:center;justify-content:center}
+.btn{margin-top:22px;background:#fff;border:1px solid #ccc;border-radius:4px;padding:8px 14px;font-size:14px;color:#333;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#e6e6e6}
+.divisor{border:0;border-top:1px solid #e1e1e1;margin-top:22px}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;border:1px solid #ddd;margin-top:10px}
+table{width:100%;border-collapse:collapse;min-width:640px;font-size:13px}
+th{background:#f5f5f5;font-weight:700;text-align:center;padding:10px 8px;border-bottom:1px solid #ddd;color:#444}
+td{padding:9px 8px;text-align:center;border-bottom:1px solid #eee}
+tr:nth-child(even) td{background:#fafafa}
+.dot{display:inline-block;width:14px;height:14px;border-radius:3px}
+.d-val{background:#5cb85c}.d-nao{background:#bbb}.d-rec{background:#d9534f}.d-em{background:#f0ad4e}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin:10px 0}
+.legenda span{display:flex;align-items:center;gap:6px}
+.link{color:var(--teal);text-decoration:underline;cursor:pointer}
+.clip{border:1px solid #ccc;background:#fff;border-radius:3px;padding:3px 6px}
+.titulo-sec{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.titulo-sec h3{font-size:22px;font-weight:400}
+.sel{height:34px;border:1px solid #ccc;border-radius:4px;padding:0 10px;font-family:inherit}
+.cards-mov{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.cards-mov .c{background:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;padding:12px 18px}
+.cards-mov label{display:block;font-weight:700;font-size:13px}
+.cards-mov span{font-size:16px;color:var(--teal)}
+
+/* ============ RESPONSIVO ============ */
+@media (max-width:991px){
+  .header .itens{gap:18px}
+  .header .usuario .nome{max-width:200px}
+  .card-aluno{gap:25px;padding:28px}
+  .foto{width:260px}
+  .form-grid{grid-template-columns:1fr 1fr}
+  .form-grid .span2{grid-column:span 2}
+}
+@media (max-width:767px){
+  :root{--sidebar-w:93px;--sub-h:86px}
+  .header{padding:0 10px}
+  .header .filial{font-size:20px;max-width:60px}
+  .header .itens{gap:14px}
+  .header .item{font-size:13px;max-width:70px}
+  .header .usuario .nome{font-size:13px;max-width:130px}
+  .avatar-sm{width:40px;height:40px}
+  .hotlinks{display:none}
+  .conteudo{padding:40px 12px 40px 35px}
+  .titulo-linha{padding:0 10px 16px 40px;justify-content:flex-end}
+  .titulo-linha h2{font-size:24px;flex-basis:100%}
+  .badge{font-size:17px;padding:16px 30px}
+  .card-aluno{flex-direction:column;gap:20px;padding:38px 38px 40px}
+  .foto{width:100%;max-width:322px}
+  .campo .lbl,.campo .val{font-size:17px}
+  .aba{padding:10px 18px;font-size:16px}
+  .info-grid,.form-grid{grid-template-columns:1fr}
+  .form-grid .span2{grid-column:auto}
+  .input-wrap input,.input-wrap select{height:40px;font-size:16px}
+  .btn{width:100%;justify-content:center}
+  .sidebar li{height:71px}
+}
+@media (max-width:420px){
+  :root{--sidebar-w:62px}
+  .conteudo{padding:30px 10px 30px 14px}
+  .titulo-linha{padding-left:10px}
+  .card-aluno{padding:22px}
+  .header .item:not(.usuario){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="filial" title="HIGIENÓPOLIS">HIGIENÓPOLIS</div>
+  <div class="itens">
+    <div class="item" title="Direito">Direito</div>
+    <div class="item" title="Alterar Curso">Alterar Curso</div>
+    <div class="usuario item" id="btnUser" style="overflow:visible">
+      <span class="nome">MARIA EDUARDA DOS SANTOS DE SOUZA (RA: 10727918)</span>
+      <div class="avatar-sm foto-aluno-sm" style="background-image:url('https://i.imgur.com/M1ahLpf.jpeg')">
+        <img class="img-aluno" src="https://i.imgur.com/M1ahLpf.jpeg" alt="Foto do aluno" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://i.imgur.com/M1ahLpf.jpg'">
+      </div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="dropdown" id="dropdown">
+        <a href="#">Cadastro Acadêmico</a>
+        <a href="#">Alterar senha</a>
+        <hr>
+        <a href="#">Sair</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SUBHEADER -->
+<div class="subheader">
+  <div class="logo"><span>M</span></div>
+  <div class="hotlinks">
+    <div class="hl"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Financeiro</div>
+    <div class="hl"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Nota/falta unificada</div>
+    <div class="sep"></div>
+    <div class="hl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M11 8v6M8 11h6"/></svg></div>
+    <div class="hl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M8 11h6"/></svg></div>
+    <div class="hl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 010 18z" fill="#fff"/></svg></div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <ul>
+      <li title="Menu"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></li>
+      <li title="Mural" class="ativo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg></li>
+      <li title="Grade Curricular"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg></li>
+      <li title="Quadro de Horários"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></li>
+      <li title="Matrícula Itinerário Formativo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6"/></svg></li>
+      <li title="Rematrícula"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 12l2 2 4-4"/></svg></li>
+      <li title="Matrícula online"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6"/></svg></li>
+      <li title="Central do Aluno" class="tem-sub"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 3 9 3 12 0v-5M22 9v6"/></svg><svg class="seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+      <li title="Secretaria" class="tem-sub"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg><svg class="seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+      <li title="Oportunidades" class="tem-sub"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/></svg><svg class="seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+      <li title="Financeiro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></li>
+      <li title="Negociação on-line"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 8l5-3 4 2 4-2 5 3v5l-6 5-4-3-3 2-5-5z"/><path d="M8 11l3 3 3-3"/></svg></li>
+      <li title="Avaliação Inst."><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12a9 9 0 01-13 8l-5 1 1-5a9 9 0 1117-4z"/><path d="M8 12l3 3 5-5"/></svg></li>
+      <li title="Urls Externas" class="tem-sub"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg><svg class="seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+      <li title="Monitoria"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+      <li title="Relatórios"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M9 11h8M9 15h8M9 19h5"/></svg></li>
+      <li title="Widgets"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></li>
+    </ul>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <main class="conteudo">
+    <div class="pagina">
+      <div class="titulo-linha">
+        <h2>Maria Eduarda dos Santos de Souza</h2>
+        <div class="badge">Matriculado</div>
+      </div>
+
+      <section class="card-aluno">
+        <div class="foto">
+          <div class="ph foto-aluno-lg" style="background-image:url('https://i.imgur.com/M1ahLpf.jpeg')">
+              <img class="img-aluno" src="https://i.imgur.com/M1ahLpf.jpeg" alt="Foto de Maria Eduarda dos Santos de Souza" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://i.imgur.com/M1ahLpf.jpg'">
+            </div>
+        </div>
+        <div class="dados-aluno">
+          <div class="campo"><div class="lbl">Registro acadêmico</div><div class="val">10727918</div></div>
+          <div class="campo"><div class="lbl">Curso</div><div class="val">Direito</div></div>
+          <div class="campo"><div class="lbl">Habilitação</div><div class="val">BACHARELADO-NUCLEO DE DIREITO EMPRESARIAL</div></div>
+          <div class="campo"><div class="lbl">Turno</div><div class="val">Matutino</div></div>
+        </div>
+      </section>
+
+      <!-- ABAS -->
+      <div class="abas">
+        <button class="aba ativa" data-p="p1">Dados pessoais</button>
+        <button class="aba" data-p="p2">Dados profissionais</button>
+        <button class="aba" data-p="p3">Responsáveis</button>
+        <button class="aba" data-p="p4">Ficha Médica</button>
+        <button class="aba" data-p="p5">Documentos</button>
+        <button class="aba" data-p="p6">Movimentação acadêmica</button>
+      </div>
+
+      <!-- DADOS PESSOAIS -->
+      <div class="painel ativo" id="p1">
+        <div class="secao"><h4>Identificação</h4><hr>
+          <div class="info-grid">
+            <div><label>Data de nascimento:</label>15/01/2005</div>
+            <div><label>Naturalidade:</label>São Paulo</div>
+            <div><label>Estado natal:</label>SP</div>
+          </div>
+        </div>
+        <div class="secao"><h4>Filiação</h4><hr>
+          <div class="alerta">ⓘ Nenhum registro encontrado!</div>
+        </div>
+        <div class="secao"><h4>Contato</h4><hr>
+          <div class="form-grid">
+            <div class="fld"><label>E-mail</label><div class="input-wrap"><input type="email"><button class="x">✕</button></div></div>
+            <div class="fld"><label>Celular</label><div class="input-wrap"><input placeholder="(99)99999-9999"><button class="x">✕</button></div></div>
+            <div class="fld"><label>Residencial</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Comercial</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Fax</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Telefone corporativo</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+          </div>
+        </div>
+        <div class="secao"><h4>Endereço</h4><hr>
+          <div class="form-grid">
+            <div class="fld"><label>CEP</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+            <div class="fld span2"><label>Logradouro</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+            <div class="fld"><label>Tipo Rua</label><div class="input-wrap"><select><option>RUA</option><option>AVENIDA</option><option>ALAMEDA</option></select><button class="x">✕</button></div></div>
+            <div class="fld"><label>Número</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+            <div class="fld"><label>Complemento</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+            <div class="fld"><label>Bairro</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+            <div class="fld"><label>Tipo Bairro</label><div class="input-wrap"><select><option>PARQUE</option><option>BAIRRO</option><option>JARDIM</option></select><button class="x">✕</button></div></div>
+            <div class="fld"><label>País</label><div class="input-wrap"><select disabled><option>BRASIL</option></select><button class="x">✕</button></div></div>
+            <div class="fld"><label>Estado</label><div class="input-wrap"><select disabled><option>São Paulo</option></select><button class="x">✕</button></div></div>
+            <div class="fld"><label>Cidade</label><div class="input-wrap"><input disabled><button class="x">✕</button></div></div>
+          </div>
+          <hr class="divisor">
+          <button class="btn">💾 Atualizar informações</button>
+        </div>
+      </div>
+
+      <!-- DADOS PROFISSIONAIS -->
+      <div class="painel" id="p2">
+        <div class="form-grid">
+          <div class="fld"><label>Empresa</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+          <div class="fld span2"><label>Cargo</label><div class="input-wrap"><select style="border-right:1px solid #ccc;border-radius:4px"><option></option></select></div></div>
+        </div>
+        <div class="secao"><h4>Endereço</h4><hr>
+          <div class="form-grid">
+            <div class="fld"><label>CEP</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld span2"><label>Logradouro</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Número</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld span2"><label>Complemento</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Bairro</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Cidade</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Estado</label><div class="input-wrap"><select style="border-right:1px solid #ccc;border-radius:4px"><option></option><option>São Paulo</option></select></div></div>
+            <div class="fld"><label>Telefone da empresa</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+            <div class="fld"><label>Horário de Trabalho</label><div class="input-wrap"><input><button class="x">✕</button></div></div>
+          </div>
+          <hr class="divisor">
+          <button class="btn">💾 Atualizar informações</button>
+        </div>
+      </div>
+
+      <!-- RESPONSÁVEIS -->
+      <div class="painel" id="p3"><div class="alerta">ⓘ Nenhum responsável cadastrado.</div></div>
+
+      <!-- FICHA MÉDICA -->
+      <div class="painel" id="p4">
+        <div class="form-grid">
+          <div class="fld span3"><label>Alergias</label><div class="input-wrap"><textarea></textarea></div></div>
+          <div class="fld span3"><label>Medicamentos</label><div class="input-wrap"><textarea></textarea></div></div>
+          <div class="fld span3"><label>Socorro hospitalar</label><div class="input-wrap"><textarea></textarea></div></div>
+          <div class="fld span3"><label>Médico (nome/contato)</label><div class="input-wrap"><textarea></textarea></div></div>
+          <div class="fld span3"><label>Tratamentos</label><div class="input-wrap"><textarea></textarea></div></div>
+          <div class="fld span3"><label>Outros</label><div class="input-wrap"><textarea></textarea></div></div>
+        </div>
+        <button class="btn">💾 Atualizar informações</button>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="painel" id="p5">
+        <div class="titulo-sec"><h3>Documentos:</h3>
+          <select class="sel"><option>2026/2</option><option>2026/1</option><option>2025/2</option><option>2025/1</option><option>2024/2</option></select>
+        </div>
+        <div class="legenda">
+          <span><i class="dot d-nao"></i>Não entregue</span>
+          <span><i class="dot d-em"></i>Entregue em validação</span>
+          <span><i class="dot d-rec"></i>Recusado</span>
+          <span><i class="dot d-val"></i>Validado</span>
+        </div>
+        <div class="tabela-wrap"><table>
+          <thead><tr><th>Situação</th><th>Descrição</th><th>Envio</th><th>Obrigatório?</th><th>Qtd prevista | entregue</th><th>Data de entrega</th><th>Prazo de entrega</th><th>Motivo de rejeição</th></tr></thead>
+          <tbody>
+            <tr><td><i class="dot d-val"></i></td><td><span class="link">FOTO 3X4 (RECENTE)</span></td><td></td><td>Sim</td><td>1 | 1</td><td>11/08/2025</td><td></td><td></td></tr>
+            <tr><td><i class="dot d-val"></i></td><td><span class="link">RG - RNE</span></td><td></td><td>Sim</td><td>1 | 1</td><td>12/08/2024</td><td></td><td></td></tr>
+            <tr><td><i class="dot d-val"></i></td><td><span class="link">CPF</span></td><td></td><td>Sim</td><td>1 | 1</td><td>12/08/2024</td><td></td><td></td></tr>
+            <tr><td><i class="dot d-nao"></i></td><td>HISTÓRICO ESCOLAR (ENSINO MÉDIO)</td><td><button class="clip">📎</button></td><td>Sim</td><td>1 | 1</td><td>12/08/2024</td><td></td><td></td></tr>
+            <tr><td><i class="dot d-nao"></i></td><td>CERTIFICADO DE CONCLUSÃO (ENSINO MÉDIO)</td><td><button class="clip">📎</button></td><td>Sim</td><td>1 | 1</td><td>12/08/2024</td><td></td><td></td></tr>
+            <tr><td><i class="dot d-rec"></i></td><td>CERTIDÃO DE NASCIMENTO</td><td><button class="clip">📎</button></td><td>Não</td><td>1 | 1</td><td>12/08/2024</td><td></td><td>Inadequado</td></tr>
+            <tr><td><i class="dot d-nao"></i></td><td>CERTIDÃO DE CASAMENTO</td><td><button class="clip">📎</button></td><td>Não</td><td>1 | 0</td><td>16/07/2024</td><td></td><td></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <!-- MOVIMENTAÇÃO -->
+      <div class="painel" id="p6">
+        <div class="cards-mov">
+          <div class="c"><label>Data do ingresso</label><span>08/08/2024</span></div>
+          <div class="c"><label>Coefic. rendimento</label><span>6.62</span></div>
+          <div class="c"><label>Média global</label><span>6.62</span></div>
+        </div>
+        <h4 style="margin:10px 0">ENADE</h4>
+        <div class="tabela-wrap"><table>
+          <thead><tr><th>Período letivo</th><th>Data da prova</th><th>Classificação Enade</th><th>Situação MEC</th><th>Compareceu</th></tr></thead>
+          <tbody>
+            <tr><td>2024/2</td><td></td><td></td><td>Nenhum</td><td></td></tr>
+            <tr><td>2025/1</td><td></td><td></td><td>Nenhum</td><td></td></tr>
+            <tr><td>2025/2</td><td></td><td>Ingressante</td><td>Nenhum</td><td></td></tr>
+            <tr><td>2026/1</td><td></td><td>Ingressante</td><td>Nenhum</td><td></td></tr>
+            <tr><td>2026/2</td><td></td><td></td><td>Nenhum</td><td></td></tr>
+          </tbody>
+        </table></div>
+        <div class="titulo-sec" style="margin-top:28px"><h4>Movimentação acadêmica</h4>
+          <select class="sel"><option>2026/2</option><option>2026/1</option></select>
+        </div>
+        <div class="tabela-wrap"><table>
+          <thead><tr><th>Data</th><th>Situação anterior</th><th>Situação atual</th><th>Turma</th><th>Motivo</th></tr></thead>
+          <tbody>
+            <tr><td>24/07/2026</td><td>Pré-Matricula</td><td>Matriculado</td><td>201812334.300.04F</td><td>Confirmação de Matricula por pagamento</td></tr>
+            <tr><td>24/07/2026</td><td>Matriculado</td><td>Pré-Matricula</td><td>201812334.300.04F</td><td></td></tr>
+            <tr><td>20/07/2026</td><td>Pré-Matricula</td><td>Matriculado</td><td>201812334.300.04F</td><td>Confirmação de Matricula por pagamento</td></tr>
+            <tr><td>18/06/2026</td><td></td><td>Pré-Matricula</td><td></td><td></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Troca de abas (apenas visual)
+document.querySelectorAll('.aba').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.aba').forEach(function(x){x.classList.remove('ativa')});
+    document.querySelectorAll('.painel').forEach(function(x){x.classList.remove('ativo')});
+    b.classList.add('ativa');
+    document.getElementById(b.dataset.p).classList.add('ativo');
+  });
+});
+// Dropdown do usuário
+document.getElementById('btnUser').addEventListener('click',function(e){
+  e.stopPropagation();document.getElementById('dropdown').classList.toggle('aberto');
+});
+document.addEventListener('click',function(){document.getElementById('dropdown').classList.remove('aberto')});
+</script>
+</body>
+</html>
